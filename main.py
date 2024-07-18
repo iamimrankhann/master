@@ -1,3 +1,0 @@
-print('ddd')
-fgtf
-dd

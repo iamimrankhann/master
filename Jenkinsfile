@@ -34,7 +34,7 @@ pipeline {
     stage('run python') {
             steps {
                sh '''
-              python3 -m a.py
+              python3 a.py
         '''
                 
             }

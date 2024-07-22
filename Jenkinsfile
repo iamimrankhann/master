@@ -143,24 +143,11 @@ pipeline {
                     podman tag lamp_life_calculator:latest ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} && \
                     podman push ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} --tls-verify=false && \
                     
-                    echo "Upload successful..."
+                    echo "Upload and Scanned successful..."
                 '''
             }
         }
-        stage('Fetch and Display Harbor Scan Results') {
-            steps {
-                script {
-                    def scanResults = sh(script: '''
-                        echo "Fetching vulnerability scan results from Harbor..."
-                        # You might need to use the correct artifact digest here instead of "latest"
-                        curl -u ${HARBOR_USERNAME}:${HARBOR_PASSWORD} -X GET ${HARBOR_API_URL}/projects/${PROJECT_ID}/repositories/${IMAGE_NAME}/artifacts/${IMAGE_TAG}/scan
-                    ''', returnStdout: true).trim()
-                    
-                    echo "Vulnerability Scan Results:"
-                    echo "${scanResults}"
-                }
-            }
-        }
+        
     }
     
     post {

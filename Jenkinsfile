@@ -152,6 +152,7 @@ pipeline {
                 script {
                     def scanResults = sh(script: '''
                         echo "Fetching vulnerability scan results from Harbor..."
+                        # You might need to use the correct artifact digest here instead of "latest"
                         curl -u ${HARBOR_USERNAME}:${HARBOR_PASSWORD} -X GET ${HARBOR_API_URL}/projects/${PROJECT_ID}/repositories/${IMAGE_NAME}/artifacts/${IMAGE_TAG}/scan
                     ''', returnStdout: true).trim()
                     

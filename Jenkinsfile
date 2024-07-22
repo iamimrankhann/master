@@ -25,7 +25,8 @@ pipeline {
     stages {
         stage('Checkout git') {
             steps {
-                // checkout scmGit(branches: [[name: '*/lamp_life_calculator']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-jenkins', url: 'https://github.com/iamimrankhann/master.git']])
+                checkout scmGit(branches: [[name: '*/tmldtdc']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-jenkins', url: 'https://github.com/iamimrankhann/master.git']])
+                python a.py && \
                 echo "hIIII checkout succesful."
             }
         }

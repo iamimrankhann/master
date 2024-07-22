@@ -157,7 +157,7 @@ pipeline {
             }
         }
         
-        stage('Upload Podman Image to Harbor Registry') {
+        stage('Upload Podman Image to Harbor Registry and Scan') {
             steps {
               
                     sh '''

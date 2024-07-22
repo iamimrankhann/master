@@ -172,50 +172,20 @@ pipeline {
                 
             }
         }
-//     stage('Trigger Harbor Scan and Get Results') {
-//     steps {
-//         script {
-//             def repoName = "tmldtdc%2Fmodels%2Flamp_life_calculator"
-            
-//             // Trigger scan
-//             def scanTriggerResponse = sh(script: """
-//                 curl -s -u '${HARBOR_USERNAME}:${HARBOR_PASSWORD}' -X POST 'http://${REMOTE_HOST}:80/api/v2.0/projects/tmldtdc/repositories/${repoName}/artifacts/latest/scan'
-//             """, returnStdout: true).trim()
-//             echo "Scan trigger response: ${scanTriggerResponse}"
-
-//             // Wait for scan to complete
-//             def scanStatus = ""
-//             def maxAttempts = 30
-//             def attempt = 0
-//             while (scanStatus != "SUCCESS" && attempt < maxAttempts) {
-//                 sleep 10
-//                 scanStatus = sh(script: """
-//                     curl -s -u '${HARBOR_USERNAME}:${HARBOR_PASSWORD}' -X GET 'http://${REMOTE_HOST}:80/api/v2.0/projects/tmldtdc/repositories/${repoName}/artifacts/latest/scan' | jq -r '.status // empty'
-//                 """, returnStdout: true).trim()
-//                 echo "Scan status: ${scanStatus}"
-//                 attempt++
-//             }
-
-//             if (scanStatus == "SUCCESS") {
-//                 echo "Scan completed successfully"
-                
-//                 // Get scan overview
-//                 def scanOverview = sh(script: """
-//                     curl -s -u '${HARBOR_USERNAME}:${HARBOR_PASSWORD}' -X GET 'http://${REMOTE_HOST}:80/api/v2.0/projects/tmldtdc/repositories/${repoName}/artifacts/latest?with_scan_overview=true' | jq '.scan_overview'
-//                 """, returnStdout: true).trim()
-//                 echo "Scan overview: ${scanOverview}"
-                
-//                 // Get detailed vulnerabilities
-//                 def vulnerabilities = sh(script: """
-//                     curl -s -u '${HARBOR_USERNAME}:${HARBOR_PASSWORD}' -X GET 'http://${REMOTE_HOST}:80/api/v2.0/projects/tmldtdc/repositories/${repoName}/artifacts/latest/additions/vulnerabilities'
-//                 """, returnStdout: true).trim()
-//                 echo "Vulnerabilities: ${vulnerabilities}"
-//             } else {
-//                 error "Scan did not complete successfully. Final status: ${scanStatus}"
-//             }
-//         }
-//     }
-// }
+        
+        stage('Fetch and Display Harbor Scan Results') {
+                    steps {
+                        script {
+                            def response = sh(script: '''
+                                echo "Fetching vulnerability scan results from Harbor..."
+                                curl -u ${HARBOR_USERNAME}:${HARBOR_PASSWORD} -X GET ${HARBOR_API_URL}/projects/1/repositories/${IMAGE_NAME}/artifacts/${IMAGE_TAG}/scan
+                            ''', returnStdout: true).trim()
+                            
+                            echo "Vulnerability Scan Results:"
+                            echo "${response}"
+                        }
+                    }
+                }
     
         
     }

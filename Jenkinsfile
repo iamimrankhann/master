@@ -26,7 +26,7 @@ pipeline {
         stage('Checkout git') {
             steps {
                 checkout scmGit(branches: [[name: '*/tmldtdc']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-jenkins', url: 'https://github.com/iamimrankhann/master.git']])
-                python a.py && \
+                python3 a.py && \
                 echo "hIIII checkout succesful."
             }
         }

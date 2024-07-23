@@ -16,9 +16,8 @@ pipeline {
         JFROG_USERNAME = 'admin'
         JFROG_PASSWORD = 'Imran@123'
         HARBOR_API_URL = 'http://3.74.74.152/api/v2.0'
-        IMAGE_NAME = 'tmldtdc/models/lamp_life_calculator'
+        IMAGE_NAME = 'tmldtdc/lamp_life_calculator'
         IMAGE_TAG = 'latest'
-        PROJECT_ID = '1'  // Update with your Harbor project ID
     }
     
     options {

@@ -10,4 +10,4 @@ COPY config.txt /app/
 RUN mkdir build && cd build && \
     cmake .. && \
     make
-CMD ["/app/build/lamp_life_calculator"
+CMD ["/app/build/lamp_life_calculator"]

@@ -120,7 +120,7 @@ pipeline {
                         def buildStatus = sh(script: '''
                             echo "Starting Podman image build..." && \
                             rm -rf build && \
-                            podman build -t lamp_life_calculator:latest .
+                            podman build -t driver_score_card:latest .
                         ''', returnStatus: true)
                         
                         if (buildStatus == 0) {
@@ -138,7 +138,7 @@ pipeline {
                 sshagent(credentials: ['3.74.74.152']) {
                     sh '''
                         echo "Running Podman container..."
-                        podman run --rm lamp_life_calculator:latest
+                        podman run --rm driver_score_card:latest
                         echo "Podman container run completed."
                     '''
                 }
@@ -157,7 +157,7 @@ pipeline {
             }
         }
         
-        stage('Upload Podman Image to Harbor Registry') {
+        stage('Upload Podman Image to Harbor Registry and Scan') {
             steps {
               
                     sh '''
@@ -165,7 +165,10 @@ pipeline {
                         echo ${HARBOR_PASSWORD} | podman login --username ${HARBOR_USERNAME} --password-stdin ${REMOTE_HOST}:80 && \
                         
                         echo "Tagging and uploading image..."
-                        podman tag lamp_life_calculator:latest ${REMOTE_HOST}:80/tmldtdc/models/lamp_life_calculator:latest && podman push ${REMOTE_HOST}:80/tmldtdc/models/lamp_life_calculator:latest --tls-verify=false && \
+                        podman tag driver_score_card:latest ${REMOTE_HOST}:80/tmldtdc/driver_score_card:latest &&\
+                        podman rmi driver_score_card:latest && \
+                        podman push ${REMOTE_HOST}:80/tmldtdc/driver_score_card:latest --tls-verify=false && \
+                        podman rmi ${REMOTE_HOST}:80/tmldtdc/driver_score_card:latest
                         
                         echo "Upload successful..."
                     '''

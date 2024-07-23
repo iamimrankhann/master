@@ -141,7 +141,9 @@ pipeline {
                     
                     echo "Tagging and uploading image..."
                     podman tag lamp_life_calculator:latest ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} && \
+                    podman rmi lamp_life_calculator:latest && \
                     podman push ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} --tls-verify=false && \
+                    podman rmi ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} 
                     
                     echo "Upload and Scanned successful..."
                 '''

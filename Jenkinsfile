@@ -134,22 +134,24 @@ pipeline {
         //         }
         //     }
         // }
-        stage('Upload Podman Image to Harbor Registry and Scan') {
-            steps {
-                sh '''
-                    echo "Logging into Harbor registry..."
-                    echo ${HARBOR_PASSWORD} | podman login --username ${HARBOR_USERNAME} --password-stdin ${REMOTE_HOST}:80 && \
-                    
-                    echo "Tagging and uploading image..."
-                    podman tag lamp_life_calculator:latest ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} && \
-                    podman rmi lamp_life_calculator:latest && \
-                    podman push ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} --tls-verify=false && \
-                    podman rmi ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} 
-                    
-                    echo "Upload and Scanned successful..."
-                '''
-            }
+       stage('Upload Podman Image to Harbor Registry and Scan') {
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'harbor-cred', usernameVariable: 'HARBOR_USERNAME', passwordVariable: 'HARBOR_PASSWORD')]) {
+            sh '''
+                echo "Logging into Harbor registry..."
+                echo ${HARBOR_PASSWORD} | podman login --username ${HARBOR_USERNAME} --password-stdin ${REMOTE_HOST}:80 && \
+                
+                echo "Tagging and uploading image..."
+                podman tag lamp_life_calculator:latest ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} && \
+                podman rmi lamp_life_calculator:latest && \
+                podman push ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} --tls-verify=false && \
+                podman rmi ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} 
+                
+                echo "Upload and Scanned successful..."
+            '''
         }
+    }
+}
         
     }
     

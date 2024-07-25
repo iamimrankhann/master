@@ -13,8 +13,8 @@ pipeline {
         HARBOR_PASSWORD = 'Harbor12345'
         JFROG_URL = 'http://3.74.74.152:8081/artifactory'
         JFROG_REPO = 'imran-imran'
-        JFROG_USERNAME = 'admin'
-        JFROG_PASSWORD = 'Imran@123'
+        // JFROG_USERNAME = 'admin'
+        // JFROG_PASSWORD = 'Imran@123'
         HARBOR_API_URL = 'http://3.74.74.152/api/v2.0'
         IMAGE_NAME = 'tmldtdc/lamp_life_calculator'
         IMAGE_TAG = 'latest'
@@ -81,16 +81,18 @@ pipeline {
         }
         stage('Upload to JFrog Artifactory') {
             steps {
-                sh '''
-                    echo "Uploading build artifacts and test results to JFrog Artifactory..." && \
-                    cd build && \
-                    curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T lamp_life_calculator && \
-                    curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T LAMP.csv && \
-                    curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T config.txt && \
-                    curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T Testing/Temporary/LastTest.log && \
-                    echo 'Uploaded lamp_life_calculator, LAMP.csv, config.txt and LastTest.log' && \
-                    echo "Artifact upload process completed."
-                '''
+                withCredentials([usernamePassword(credentialsId: 'jfrog-cred', usernameVariable: 'JFROG_USERNAME', passwordVariable: 'JFROG_PASSWORD')]) {
+                    sh '''
+                        echo "Uploading build artifacts and test results to JFrog Artifactory..." && \
+                        cd build && \
+                        curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T lamp_life_calculator && \
+                        curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T LAMP.csv && \
+                        curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T config.txt && \
+                        curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T Testing/Temporary/LastTest.log && \
+                        echo 'Uploaded lamp_life_calculator, LAMP.csv, config.txt and LastTest.log' && \
+                        echo "Artifact upload process completed."
+                    '''
+                }
             }
         }
         stage('Create Podman image') {
@@ -121,17 +123,17 @@ pipeline {
                 }
             }
         }
-        stage('Start Harbor containers') {
-            steps {
-                sshagent(credentials: ['3.74.74.152']) {
-                    sh '''
-                        echo "Starting Harbor..."
-                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "cd harbor && sudo ./install.sh --with-trivy"
-                        echo "Harbor Started..."
-                    '''
-                }
-            }
-        }
+        // stage('Start Harbor containers') {
+        //     steps {
+        //         sshagent(credentials: ['3.74.74.152']) {
+        //             sh '''
+        //                 echo "Starting Harbor..."
+        //                 ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "cd harbor && sudo ./install.sh --with-trivy"
+        //                 echo "Harbor Started..."
+        //             '''
+        //         }
+        //     }
+        // }
         stage('Upload Podman Image to Harbor Registry and Scan') {
             steps {
                 sh '''

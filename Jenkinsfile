@@ -8,8 +8,8 @@ pipeline {
         REMOTE_HOST = '3.74.74.152'
         REMOTE_USER = 'ubuntu'
         REMOTE_DIR = '/home/ubuntu/TML'
-        HARBOR_USERNAME = 'admin'
-        HARBOR_PASSWORD = 'Harbor12345'
+        // HARBOR_USERNAME = 'admin'
+        // HARBOR_PASSWORD = 'Harbor12345'
         JFROG_URL = 'http://3.74.74.152:8081/artifactory'
         JFROG_REPO = 'imran-imran'
         // JFROG_USERNAME = 'admin'
@@ -63,21 +63,21 @@ pipeline {
                 '''
             }
         }
-        stage('Start JFrog Artifactory') {
-            steps {
-                sh '''
-                    echo "Starting JFrog..." &&
-                    sudo systemctl start postgresql &&
-                    sudo systemctl is-active --quiet postgresql &&
-                    echo 'Postgress database started successfully' || 
-                    (echo 'Failed to start postgress database' && exit 1) &&
-                    sudo systemctl start artifactory &&
-                    sudo systemctl is-active --quiet artifactory &&
-                    echo 'JFrog Artifactory started successfully' || 
-                    (echo 'Failed to start JFrog Artifactory' && exit 1)
-                '''
-            }
-        }
+        // stage('Start JFrog Artifactory') {
+        //     steps {
+        //         sh '''
+        //             echo "Starting JFrog..." &&
+        //             sudo systemctl start postgresql &&
+        //             sudo systemctl is-active --quiet postgresql &&
+        //             echo 'Postgress database started successfully' || 
+        //             (echo 'Failed to start postgress database' && exit 1) &&
+        //             sudo systemctl start artifactory &&
+        //             sudo systemctl is-active --quiet artifactory &&
+        //             echo 'JFrog Artifactory started successfully' || 
+        //             (echo 'Failed to start JFrog Artifactory' && exit 1)
+        //         '''
+        //     }
+        // }
         stage('Upload to JFrog Artifactory') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'jfrog-cred', usernameVariable: 'JFROG_USERNAME', passwordVariable: 'JFROG_PASSWORD')]) {

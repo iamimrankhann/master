@@ -63,37 +63,22 @@ pipeline {
                 '''
             }
         }
-        stage('Start JFrog Artifactory') {
-            steps {
-                sh '''
-                echo "Starting JFrog..."
-                # Start the PostgreSQL service
-                echo "Starting PostgreSQL..."
-                sudo systemctl start postgresql@16-main
-                # Check if PostgreSQL started successfully
-                if systemctl is-active --quiet postgresql@16-main; then
-                    echo "PostgreSQL started successfully"
-                else
-                    echo "Failed to start PostgreSQL database"
-                    exit 1
-                fi
-                
-                # Start JFrog Artifactory
-                echo "Starting JFrog Artifactory..."
-               
-                sudo systemctl start artifactory
-                
-                # Check if JFrog Artifactory started successfully
-                if systemctl is-active --quiet artifactory; then
-                    echo "JFrog Artifactory started successfully"
-                else
-                    echo "Failed to start JFrog Artifactory"
-                    exit 1
-                fi
+        // stage('Start JFrog Artifactory') {
+        //     steps {
+        //         sh '''
+        //         echo "Starting JFrog..." &&
+        //         sudo systemctl start postgresql &&
+        //         sudo systemctl is-active --quiet postgresql &&
+        //         echo 'Postgress database started successfully' || 
+        //         (echo 'Failed to start postgress database' && exit 1) &&
+        //         sudo systemctl start artifactory &&
+        //         sudo systemctl is-active --quiet artifactory &&
+        //         echo 'JFrog Artifactory started successfully' || 
+        //         (echo 'Failed to start JFrog Artifactory' && exit 1)
 
-                '''
-            }
-        }
+        //         '''
+        //     }
+        // }
         stage('Upload to JFrog Artifactory') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'jfrog-cred', usernameVariable: 'JFROG_USERNAME', passwordVariable: 'JFROG_PASSWORD')]) {

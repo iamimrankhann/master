@@ -78,24 +78,24 @@ pipeline {
             }
         }
         
-        stage('Start JFrog Artifactory') {
-            steps {
+        // stage('Start JFrog Artifactory') {
+        //     steps {
         
-                    sh '''
-                        echo "Starting JFrog..." &&
-                        sudo systemctl start postgresql &&
-                        sudo systemctl is-active --quiet postgresql &&
-                        echo 'Postgress database started successfully' || 
-                        (echo 'Failed to start postgress database' && exit 1) &&
-                        sudo systemctl start artifactory &&
-                        sudo systemctl is-active --quiet artifactory &&
-                        echo 'JFrog Artifactory started successfully' || 
-                        (echo 'Failed to start JFrog Artifactory' && exit 1)
+        //             sh '''
+        //                 echo "Starting JFrog..." &&
+        //                 sudo systemctl start postgresql &&
+        //                 sudo systemctl is-active --quiet postgresql &&
+        //                 echo 'Postgress database started successfully' || 
+        //                 (echo 'Failed to start postgress database' && exit 1) &&
+        //                 sudo systemctl start artifactory &&
+        //                 sudo systemctl is-active --quiet artifactory &&
+        //                 echo 'JFrog Artifactory started successfully' || 
+        //                 (echo 'Failed to start JFrog Artifactory' && exit 1)
                         
-                    '''
+        //             '''
                 
-            }
-        }
+        //     }
+        // }
         stage('Upload to JFrog Artifactory') {
             steps {
                     sh '''
@@ -145,17 +145,17 @@ pipeline {
             }
         }
         
-        stage('Start harbor containers') {
-            steps {
-                sshagent(credentials: ['3.74.74.152']) {
-                    sh '''
-                        echo "Starting Harbor..."
-                        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "cd harbor && sudo ./install.sh --with-trivy"
-                        echo "Harbor Started..."
-                    '''
-                }
-            }
-        }
+        // stage('Start harbor containers') {
+        //     steps {
+        //         sshagent(credentials: ['3.74.74.152']) {
+        //             sh '''
+        //                 echo "Starting Harbor..."
+        //                 ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@${REMOTE_HOST} "cd harbor && sudo ./install.sh --with-trivy"
+        //                 echo "Harbor Started..."
+        //             '''
+        //         }
+        //     }
+        // }
         
         stage('Upload Podman Image to Harbor Registry and Scan') {
             steps {

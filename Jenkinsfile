@@ -19,6 +19,7 @@ pipeline {
         IMAGE_NAME = 'tmldtdc/lamp_life_calculator'
         IMAGE_TAG = 'latest'
     }
+
     
     options {
         disableConcurrentBuilds()

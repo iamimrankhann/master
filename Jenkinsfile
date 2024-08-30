@@ -5,6 +5,7 @@ pipeline {
             label 'slave1' 
         }
     }
+    
     environment {
         REMOTE_HOST = '3.74.74.152'
         REMOTE_USER = 'ubuntu'

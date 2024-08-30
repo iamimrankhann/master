@@ -28,8 +28,8 @@ WORKDIR /lamp
 COPY --from=builder /lamp/build/lamp_life_calculator /app/lamp_life_calculator
 
 # Copy config.txt and data directory
-COPY LAMP.csv /app/
-COPY config.txt /app/
+COPY LAMP.csv /lamp/
+COPY config.txt /lamp/
 
 # Set the command to run the application
 CMD ["/app/lamp_life_calculator"]

@@ -17,7 +17,7 @@ pipeline {
         
         HARBOR_API_URL = 'http://3.74.74.152/api/v2.0'
         IMAGE_NAME = 'tmldtdc/lamp_life_calculator'
-        IMAGE_TAG = 'latest'
+        IMAGE_TAG = "v1.${env.BUILD_NUMBER}"
     }
 
     
@@ -103,7 +103,7 @@ pipeline {
                     def buildStatus = sh(script: '''
                         echo "Starting Podman image build..." && \
                         rm -rf build && \
-                        podman build -t lamp_life_calculator:latest .
+                        podman build -t lamp_life_calculator:${IMAGE_TAG} .
                     ''', returnStatus: true)
                     
                     if (buildStatus == 0) {
@@ -144,8 +144,8 @@ pipeline {
                 echo ${HARBOR_PASSWORD} | podman login --username ${HARBOR_USERNAME} --password-stdin ${REMOTE_HOST}:80 && \
                 
                 echo "Tagging and uploading image..."
-                podman tag lamp_life_calculator:latest ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} && \
-                podman rmi lamp_life_calculator:latest && \
+                podman tag lamp_life_calculator:${IMAGE_TAG} ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} && \
+                podman rmi lamp_life_calculator:${IMAGE_TAG} && \
                 podman push ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} --tls-verify=false && \
                 podman rmi ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} 
                 

@@ -22,7 +22,6 @@ pipeline {
         IMAGE_TAG = "v1.${env.BUILD_NUMBER}"
     }
 
-    
     options {
         disableConcurrentBuilds()
         timestamps()

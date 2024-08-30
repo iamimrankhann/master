@@ -119,7 +119,7 @@ pipeline {
                 sshagent(credentials: ['3.74.74.152']) {
                     sh '''
                         echo "Running Podman container..."
-                        podman run --rm lamp_life_calculator:latest
+                        podman run --rm lamp_life_calculator:${IMAGE_TAG}
                         echo "Podman container run completed."
                     '''
                 }

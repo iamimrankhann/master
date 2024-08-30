@@ -1,3 +1,4 @@
+#Final Optimized image
 FROM alpine:latest AS builder
 
 WORKDIR /lamp

@@ -1,0 +1,223 @@
+pipeline {
+    agent {
+        node {
+            label 'slave'
+        }
+    }
+
+    environment {
+        
+        JFROG_URL = 'http://3.74.74.152:8081/artifactory'
+        JFROG_REPO = 'sdv-poc'
+        HARBOR_API_URL = 'http://3.74.74.152/api/v2.0'
+        IMAGE_NAME = 'tmldtdc/lamp_life_calculator'
+        IMAGE_TAG = 'latest'
+        REMOTE_HOST = '3.74.74.152'  
+        approved_user='imran,seema'
+    }
+
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+    }
+
+    stages {
+        stage('Checkout git') {
+ 
+            steps {
+ 
+               git branch: 'lamp_life_calculator', credentialsId: 'github-jenkins', url: 'https://github.com/iamimrankhann/master.git'
+ 
+            }
+ 
+        }
+        
+        stage('Check files') {
+            steps {
+                sh '''
+                    echo "Listing files in the workspace:"
+                    ls 
+
+                    echo "\nChecking Git status:"
+                    git status
+
+                    echo "\nShowing current branch:"
+                    git branch --show-current
+
+                    echo "\nShowing last commit:"
+                    git log -1 --oneline
+                '''
+            }
+        }
+        stage('Build cpp and CTest') {
+            steps {
+                sh '''
+                    echo 'Building and testing C++ code...'
+                    
+                    # Create build directory and navigate to it
+                    mkdir -p build
+                    cd build
+        
+                    # Generate build system and compile
+                    cmake ..
+                    make
+        
+                    # Copy necessary files to the build directory
+                    cp ../LAMP.csv .
+                    cp ../config.txt .
+        
+                    # Run tests and show detailed output on failure
+                    ctest --output-on-failure
+        
+                    # Display result of the code execution
+                    echo 'Result of Code Execution:'
+                    ./lamp_life_calculator
+        
+                    # Prepare artifacts
+                    mkdir -p lamp_life
+                    mv LAMP.csv  config.txt  lamp_life
+                    mv lamp_life_calculator lamp_life
+                    mv Testing/Temporary/LastTest.log lamp_life
+                    # Compress the artifacts
+                    zip -r lamp_life.zip lamp_life
+        
+                    # Clean up temporary folder
+                    rm -rf lamp_life
+                '''
+            }
+        }
+
+        stage('Upload to jfrog using pluggins') {
+            agent none
+            steps {
+                script {
+                    // Define Artifactory server
+                    def server = Artifactory.server('Artifactory') // Replace with your server ID
+
+                    // Define the upload specification
+                    def uploadSpec = """{
+                        "files": [
+                            {
+                                "pattern": "build/lamp_life.zip",
+                                "target": "${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/lamp_life.zip",
+                                "flat": "true"
+                            }
+                        ]
+                    }"""
+
+                    // Upload the artifact
+                    server.upload(uploadSpec)
+                    
+                }
+            }
+        }
+        // stage('Upload to JFrog Artifactory') {
+        //     steps {
+        //         withCredentials([usernamePassword(credentialsId: 'jfrog-cred', usernameVariable: 'JFROG_USERNAME', passwordVariable: 'JFROG_PASSWORD')]) {
+        //             sh '''
+        //                 echo "Uploading build artifacts and test results to JFrog Artifactory..." && \
+        //                 cd build && \
+        //                 curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T lamp_life_calculator && \
+        //                 curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T LAMP.csv && \
+        //                 curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T config.txt && \
+        //                 curl -u ${JFROG_USERNAME}:${JFROG_PASSWORD} -X PUT ${JFROG_URL}/${JFROG_REPO}/lamp_life_calculator/${BUILD_NUMBER}/ -T Testing/Temporary/LastTest.log && \
+        //                 echo 'Uploaded lamp_life_calculator, LAMP.csv, config.txt and LastTest.log' && \
+        //                 echo "Artifact upload process completed."
+        //             '''
+                    
+                    
+        //         }
+        //     }
+        // }
+        
+        
+    //     stage('Create Podman image') {
+    //         steps {
+    //             script {
+    //                 def buildStatus = sh(script: '''
+    //                     echo "Starting Podman image build..."
+    //                     rm -rf build
+    //                     podman build -t lamp_life_calculator:latest .
+    //                 ''', returnStatus: true)
+
+    //                 if (buildStatus == 0) {
+    //                     echo "Podman image created successfully!"
+    //                 } else {
+    //                     error "Podman image build failed"
+    //                 }
+    //             }
+    //         }
+    //     }
+        
+    //     stage('Run Podman container') {
+    //         steps {
+    //             sh '''
+    //                 echo "Running Podman container..."
+    //                 podman run --rm lamp_life_calculator:latest
+    //                 echo "Podman container run completed."
+    //             '''
+    //         }
+    //     }
+        
+    //     stage('Upload Podman Image to Harbor Registry and Scan') {
+    //         steps {
+    //             withCredentials([usernamePassword(credentialsId: 'harbor-cred', usernameVariable: 'HARBOR_USERNAME', passwordVariable: 'HARBOR_PASSWORD')]) {
+    //                 sh '''
+    //                     echo "Logging into Harbor registry..."
+    //                     echo ${HARBOR_PASSWORD} | podman login --username ${HARBOR_USERNAME} --password-stdin ${REMOTE_HOST}:80
+
+    //                     echo "Tagging and uploading image..."
+    //                     podman tag lamp_life_calculator:latest ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG}
+    //                     podman rmi lamp_life_calculator:latest
+    //                     podman push ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} --tls-verify=false
+    //                     podman rmi ${REMOTE_HOST}:80/${IMAGE_NAME}:${IMAGE_TAG} 
+
+    //                     echo "Upload and Scan successful..."
+    //                 '''
+    //             }
+    //         }
+    //     }
+        
+    //     stage('Pause for Approval') {
+    //         agent none
+    //         steps {
+    //             script {
+    //                 mail(
+    //                     to: 'imran.k@tataelxsi.co.in',
+    //                     subject: "Approval Needed for Job Triggering Robot SIL Test from job ${env.JOB_NAME} with Build No: ${env.BUILD_NUMBER}",
+    //                     body: "Please approve the build by clicking on the following link: ${env.BUILD_URL}input/"
+    //                 )
+    //                 def userInput = input(
+    //                     message: 'Do you want to continue?',
+    //                     ok: 'Yes, proceed',
+    //                     submitterParameter: 'APPROVER_USER'
+    //                 )
+
+    //                 def approver = userInput
+    //                 def approvedUsersList = env.approved_user.split(',')
+    //                 if (!approvedUsersList.contains(approver)) {
+    //                     error "Unauthorized approver: ${approver}."
+    //                 }
+    //                 echo "Deployment approved by: ${approver}"
+    //             }
+    //         }
+    //     }
+    //     stage('Triggered SIL Testing Job'){
+    //         steps{
+    //             build 'SDV_p2'
+    //         }
+    //     }
+    }
+
+    post {
+        always {
+            echo "Build finished. Status: ${currentBuild.result}"
+        }
+        failure {
+            echo "Build failed. Check the logs for details."
+        }
+        success {
+            echo "Build completed successfully."
+        }
+    }
+}

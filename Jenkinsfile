@@ -28,11 +28,14 @@ pipeline {
     }
     
     stages {
-        // stage('Checkout git') {
-        //     steps {
-        //         checkout scmGit(branches: [[name: '*/lamp_life_calculator']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-jenkins', url: 'https://github.com/iamimrankhann/master.git']])
-        //     }
-        // }
+        stage('Checkout git') {
+            steps {
+                script{
+                    sh "echo ${env.JOB_NAME}"
+                }
+                // checkout scmGit(branches: [[name: '*/lamp_life_calculator']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-jenkins', url: 'https://github.com/iamimrankhann/master.git']])
+            }
+        }
         stage('Check files') {
             steps {
                 sh '''

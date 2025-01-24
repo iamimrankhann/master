@@ -2,7 +2,7 @@ pipeline {
     
     agent {
         node {
-            label 'slave1' 
+            label 'slave' 
         }
     }
     
@@ -36,6 +36,7 @@ pipeline {
         stage('Check files') {
             steps {
                 sh '''
+                    echo ${env.JOB_NAME}
                     echo "Listing files in the workspace:"
                     ls 
                     
